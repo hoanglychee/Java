@@ -51,7 +51,7 @@ public class NhanVien {
         else
             return false;
     }
-    private int TinhLuong()
+    int TinhLuong()
     {
         if(VuotChuan() == true && getChuan() == 300)
             return (SoSP -300)*30000 + 300*20000;

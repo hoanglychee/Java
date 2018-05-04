@@ -1,6 +1,5 @@
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -64,10 +63,6 @@ public class ThongtinNV extends javax.swing.JFrame {
 
         jLabel4.setText("Tien luong");
 
-        txtma.setText("jTextField1");
-
-        txtsosp.setText("jTextField2");
-
         cbpx.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "A", "B", "C", "D" }));
         cbpx.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -77,12 +72,10 @@ public class ThongtinNV extends javax.swing.JFrame {
 
         jLabel5.setText("So san pham chuan:");
 
-        txtspchuan.setText("jTextField3");
         txtspchuan.setEnabled(false);
 
         txtluong.setBackground(new java.awt.Color(51, 255, 255));
         txtluong.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtluong.setText("jTextField4");
 
         btnTinh.setText("Tinh luong");
         btnTinh.addActionListener(new java.awt.event.ActionListener() {
@@ -131,15 +124,14 @@ public class ThongtinNV extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
+        tbKq.setColumnSelectionAllowed(true);
         tbKq.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tbKqMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tbKq);
-        if (tbKq.getColumnModel().getColumnCount() > 0) {
-            tbKq.getColumnModel().getColumn(3).setHeaderValue("Vuot chuan");
-        }
+        tbKq.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         btnDong.setText("Dong");
         btnDong.addActionListener(new java.awt.event.ActionListener() {
@@ -228,52 +220,91 @@ public class ThongtinNV extends javax.swing.JFrame {
 
     private void btnTinhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTinhActionPerformed
         // TODO add your handling code here:
-        
+        NhanVien nhanvien = new NhanVien();
+        nhanvien.setMa(txtma.getText());
+        nhanvien.setPX(cbpx.getSelectedItem().toString());
+        nhanvien.setSoSP(Integer.parseInt(txtsosp.getText()));
+        txtluong.setText(Long.toString(nhanvien.TinhLuong()));
     }//GEN-LAST:event_btnTinhActionPerformed
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
         // TODO add your handling code here:
         DefaultTableModel model = (DefaultTableModel) tbKq.getModel();
-        NhanVien nv1 = new NhanVien();
-        nv1.setMa(txtma.getText());
-        nv1.setPX(cbpx.getSelectedItem().toString());
-        nv1.setSoSP(Integer.parseInt(txtsosp.getText()));
-        nv.add(nv1);
-        Vector <String> f = new Vector();
-        f.add(nv1.getMa());
-        f.add(nv1.getPX());
-        f.add(Integer.toString(nv1.getSoSP()));
-        if(nv1.VuotChuan()== true)
-            f.add("x");
-        model.addRow(f);
-        tbKq.setModel(model);
+        NhanVien nhanvien = new NhanVien();
+        //Nhập thông tin nhân viên
+        if (txtma.getText().trim().equals("") || txtsosp.getText().trim().equals(""))
+            JOptionPane.showMessageDialog(this, "Có dữ liệu chưa nhập");
+        else{           
+            nhanvien.setMa(txtma.getText());
+            nhanvien.setPX(cbpx.getSelectedItem().toString());        
+            if (!txtsosp.getText().matches("\\d+")) //Kiểm tra có phải là số không
+                JOptionPane.showMessageDialog(this, "Số sản phẩm phải nhập số");
+            else{
+                nhanvien.setSoSP(Integer.parseInt(txtsosp.getText()));
+                nv.add(nhanvien);      
+          //Nhập thông tin nhân viên vào bảng
+            Vector<String> bang = new Vector<>();
+            bang.add(nhanvien.getMa());
+            bang.add(nhanvien.getPX());
+            bang.add(Integer.toString(nhanvien.getSoSP()));
+            if (nhanvien.VuotChuan())
+                bang.add("x");
+            //Hiện thông tin lên jTable
+            model.addRow(bang);
+            JOptionPane.showMessageDialog(this, "Thêm thành công");
+            Clear();
+            }
+        }
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
         // TODO add your handling code here:
-        DefaultTableModel model = new DefaultTableModel();
-        int n = tbKq.getSelectedRow();
-        int c = n+1;
-        if(n > -1)
-        {
-            int a = JOptionPane.showConfirmDialog(null, "Ban co chac chan xoa"+ c, "Canh bao", JOptionPane.WARNING_MESSAGE);
-            if (a == 0){
-                model.removeRow(n);
-                nv.remove(n);
-                tbKq.setModel(model);
+        DefaultTableModel model = (DefaultTableModel) tbKq.getModel();
+        if(tbKq.getSelectedRow()==-1){
+            if(tbKq.getRowCount()==0)
+            JOptionPane.showMessageDialog(this, "Bảng đang rỗng");
+            else
+            JOptionPane.showMessageDialog(this, "Bạn chưa chọn dòng cần xóa");
+        }
+        else {
+            int yesNo= JOptionPane.showConfirmDialog(this,"Bạn có muốn xóa hay không?","Confirm message", JOptionPane.YES_NO_OPTION);
+            if (yesNo==0){
+                model.removeRow(tbKq.getSelectedRow());
+                Clear();
             }
-            
-        } else {
-            JOptionPane.showMessageDialog(null,"Bạn chưa chọn hàng nào cả!","cảnh báo",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnXoaActionPerformed
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
         // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) tbKq.getModel();
+        if(tbKq.getSelectedRow()==-1){
+            if(tbKq.getRowCount()==0)
+            JOptionPane.showMessageDialog(this, "Bảng đang rỗng");
+            else
+            JOptionPane.showMessageDialog(this, "Bạn chưa chọn dòng cần xóa");
+        }
+        else {
+            int yesNo= JOptionPane.showConfirmDialog(this,"Bạn có muốn cập nhật hay không?","Confirm message", JOptionPane.YES_NO_OPTION);
+            if (yesNo==0){
+                NhanVien nhanvien = new NhanVien();
+                nhanvien.setMa(txtma.getText());
+                nhanvien.setPX(cbpx.getSelectedItem().toString());
+                nhanvien.setSoSP(Integer.parseInt(txtsosp.getText()));              
+                //Cập nhật lại thông tin lên jTable
+                model.setValueAt(txtma.getText(),tbKq.getSelectedRow(),0);
+                model.setValueAt(cbpx.getSelectedItem().toString(),tbKq.getSelectedRow(),1);
+                model.setValueAt(txtsosp.getText(), tbKq.getSelectedRow(),2);
+                if (nhanvien.VuotChuan())
+                    model.setValueAt("x", tbKq.getSelectedRow(),3);  
+                else
+                    model.setValueAt("", tbKq.getSelectedRow(),3);
+            }}
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void btnDongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDongActionPerformed
         // TODO add your handling code here:
+        System.exit(0);
     }//GEN-LAST:event_btnDongActionPerformed
 
     private void tbKqMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbKqMouseClicked
@@ -326,7 +357,12 @@ public class ThongtinNV extends javax.swing.JFrame {
             }
         });
     }
-
+    private void Clear(){
+        txtma.setText("");
+        cbpx.setSelectedItem("A");
+        txtsosp.setText("");     
+        txtluong.setText("");
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDong;
     private javax.swing.JButton btnSua;
